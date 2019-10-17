@@ -1,0 +1,110 @@
+function [x,exitflag,ans] = milp_reynicost(J, K, X, cond_prob, prob_act, joint_prob, state_prob, beta)
+
+%A and b are reserved for Ax <= b
+A = zeros(1 + X*K, J*X*K + 2*K);
+rowcnt = 1;
+
+% variables . : 1 - 24 utility values ,  + 4 lambda values KKT
+%Constraint 1 NIAS
+for j = 1:J
+    for l=1:J
+        for k=1:K
+            if(j ~= l)
+                s_jindx = 1+(j-1)*X+(k-1)*X*J;
+                e_jindx = X+(j-1)*X+(k-1)*X*J;
+                s_lindx = 1+(l-1)*X+(k-1)*X*J;
+                e_lindx = X+(l-1)*X+(k-1)*X*J;
+                A(rowcnt, s_jindx:e_jindx) = -cond_prob(s_jindx:e_jindx);
+                A(rowcnt,  s_lindx:e_lindx) = cond_prob(s_jindx:e_jindx);
+                b(rowcnt) = -1e-3; %small negative to force strict inequality for atleast one
+                rowcnt = rowcnt+1;
+            end
+        end
+    end
+end
+%Constraint 2 NIAC
+for k=1:(K-1)
+    if(k <= (K-2))
+        A(rowcnt, (1+(k-1)*J+X*J*K):(J+(k-1)*J+X*J*K)) = -prob_act((1+(k-1)*J):(J+(k-1)*J));
+        A(rowcnt, (1+k*J+X*J*K+J*(K-1)):(J+k*J+X*J*K+J*(K-1))) = -prob_act((1+k*J):(J+k*J));
+    else
+        A(rowcnt, (1+(k-1)*J+X*J*K):(J+(k-1)*J+X*J*K)) = -prob_act((1+(k-1)*J):(J+(k-1)*J));
+        A(rowcnt, (1+X*J*K+J*(K-1)):(J+X*J*K+J*(K-1))) = -prob_act(1:J);
+    end
+    b(rowcnt) = 0;
+end
+
+
+
+% dumm1=0;
+% dumm2=0;
+% %Constraint 9 (equality) KKT
+% for i=1:X
+%     for j=1:J
+%         for k=1:K
+%             coeff = 0;
+%             for si=1:X
+%                 for sj=1:J
+%                     %coeff = coeff+joint_prob(si+(sj-1)*X+(k-1)*X*J)*((cond_prob(si+(sj-1)*X+(k-1)*X*J)/state_prob(si+(k-1)*K))^(beta-1));
+%                     coeff = coeff+(joint_prob(si+(sj-1)*X+(k-1)*X*J)^(beta))/[(state_prob(si+(k-1)*K)^(beta-1))*(prob_act((k-1)*J + sj)^(beta-1))];
+%                 end
+%             end
+%             %rectify KKT for renyi case
+%             %coeff = coeff*((cond_prob(i+(j-1)*X+(k-1)*X*J)/state_prob(i+(k-1)*K)^(beta-1)))/(beta-1);
+%             %coeff=coeff*(beta-1)*(prob_act( j+(k-1)*J ))^(2*(beta-1));
+%             if joint_prob(1 +(j-1)*X+(k-1)*X*J) == 0
+%                 joint_prob(1 +(j-1)*X+(k-1)*X*J) = 0.000001;
+%             end
+%             if joint_prob(2 +(j-1)*X+(k-1)*X*J) == 0
+%                 joint_prob(2 +(j-1)*X+(k-1)*X*J) = 0.000001;
+%             end
+%             if prob_act(j+(k-1)*J) == 0
+%                 prob_act(j+(k-1)*J) = 0.000001;
+%             end
+%             dumm1= [(beta)*(prob_act(j+(k-1)*J)^(beta-1))*(joint_prob(i+(j-1)*X+(k-1)*X*J)^(beta-1)) - (beta-1)*(prob_act(j+(k-1)*J)^(beta-2))*(joint_prob(i+(j-1)*X+(k-1)*X*J)^(beta))]/(state_prob(i+(k-1)*X)^(beta-1));
+%             dumm2= [(beta-1)*(prob_act(j+(k-1)*J)^(beta-2))* (joint_prob(mod(i,2)+1 +(j-1)*X+(k-1)*X*J)^(beta))]/(state_prob(mod(i,2)+1 +(k-1)*X)^(beta-1)); % can use the mod trick just because we have two states 1 and 2
+%             
+%             if ~isnan(coeff)
+%                 coeff=(dumm1 - dumm2)/[coeff*(beta-1)*(prob_act( j+(k-1)*J ))^(2*(beta-1))];
+%             else
+%                 if dumm1>=dumm2
+%                     coeff=Inf;
+%                 else
+%                     coeff= -Inf;
+%                 end
+%             end
+%             %coeff
+%             Aeq(rowcnteq, i+(j-1)*X+(k-1)*X*J) = 1;
+%             %if ~(isnan(coeff))
+%                 Aeq(rowcnteq, (2*(k-1))+1+2*J*(K-1)+2*(J^2)*(K-1)+X*J*K) = -coeff;
+%             %else
+%             %   Aeq(rowcnteq, 1+2*J*(K-1)+2*(J^2)*(K-1)+X*J*K) = (-1)*M;
+%             %end
+%             %if cond_prob(i+(j-1)*X+(k-1)*X*J) ~= 0
+%             %    Aeq(rowcnteq, 1+2*J*(K-1)+2*(J^2)*(K-1)+X*J*K) = -log(cond_prob(i+(j-1)*X+(k-1)*X*J));
+%             %else 
+%             %    Aeq(rowcnteq, 1+2*J*(K-1)+2*(J^2)*(K-1)+X*J*K) = 0;
+%             %end
+%             Aeq(rowcnteq, (2*(k-1))+2+2*J*(K-1)+2*(J^2)*(K-1)+X*J*K) = 1;
+%             beq(rowcnteq) = 0;
+%             rowcnteq = rowcnteq+1;
+%         end
+%     end
+% end
+
+
+%Solve MILP to construct utility function
+lb = zeros(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2+2,1);
+lb(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2) = -Inf;
+lb(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2+2) = -Inf;
+%lb(1:(X*J*K)) = 1e-3;
+ub = ones(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2+2,1);
+ub(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+1:X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2+2) = [Inf Inf Inf Inf];
+%ub(1:(X*J*K)) = 100;
+f = zeros(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2+2,1); % no objective function
+options = optimoptions('intlinprog','Display','iter', 'IntegerTolerance', 1e-6);
+[x,~,exitflag] = intlinprog(f,intcon,A,b,Aeq,beq,lb,ub,options);
+Aeq=full(Aeq);
+ans=horzcat(transpose(Aeq(13:2:35,109)),transpose(Aeq(14:2:36,111)));
+%Aeq
+end

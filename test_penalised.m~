@@ -1,0 +1,103 @@
+clear all;
+clc;
+
+
+%Parameters of optimization problem
+J = 6; % comments ({low count, negative; low count, neutral; low count, positive;
+                %high count, negative; high count, neutral; high count, positive;
+K = 2; % decision problems (category of video {most popular; other})
+X = 2; % viewcount ({high, low})
+cl_MAX=153;
+i=0;
+
+x=0;
+e=0;
+tot=0;gr_tot=0;
+count=0;count_1=0;
+arr_1=zeros(1,1);
+arr_2=zeros(1,1);
+
+ A=0;b=0;Aeq=0;beq=0;
+ beta=0;
+ good_beta_arr=zeros(2,2);
+ ans=0;
+ 
+ 
+ %Construct utility for each frame
+ load('category_switch_data_mod_zero_rec.mat');
+ 
+arr_3=zeros(1,10);
+arr=zeros(1,2);
+dummy=0;dumm_1=0;
+for beta = 0.01:0.01:0.95
+    count_1=count_1+1;
+    count=0;
+    tot=0;
+    %count
+    for i=1:17
+        for j=(i+1):18    
+            count=count+1;
+            [x,e] = milp_reynicost_niacs(J, K, X, cond_prob(count,:), prob_act(count,:),joint_prob(count,:),state_prob(count,:),beta);
+            if e==1
+                [x,e] = milp_reyni_kkt_dev(J, K, X, cond_prob(count,:), prob_act(count,:),joint_prob(count,:),state_prob(count,:),beta);
+                if e==1
+                    
+%               tot=tot+1;
+%               arr_1(count_1,tot)=i;
+%               arr_2(count_1,tot)=j;
+%               arr(count_1,tot)=x(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2 + 2+1);
+                end
+            end
+        end
+    end
+    dummy = arr(count_1,:);
+    dummy = dummy(dummy>0);
+    dumm_1=size(dummy); dumm_1=dumm_1(2);
+    arr_3(count_1)= sum(dummy)/ dumm_1;
+    tot    
+   good_beta_arr(count_1,:)=[beta tot/153];
+end
+
+% arr_3=zeros(1,153);
+% count=0;
+% tot=0;
+% for i=1:17
+%     for j=(i+1):18   
+%         count=count+1;
+%         [x,e] = milp_shannoncost_niacs_dev(J, K, X, cond_prob(count,:), prob_act(count,:));
+%         if e==1
+%           tot=tot+1;
+%           arr_1(tot)=i;
+%           arr_2(tot)=j;
+%           arr_3(tot) = x(X*J*K+2*J(K-1)+2*(J^2)*(K-1)+2 + 2+1);
+%         end
+%     end
+% end
+
+
+% count=0;
+% tot=0;
+% for i=1:17
+%     for j=(i+1):18   
+%         count=count+1;
+%         [x] = milp_generalcost(J, K, X, cond_prob(count,:), prob_act(count,:));
+%         if x==1
+%           tot=tot+1;
+%           arr_1(tot)=i;
+%           arr_2(tot)=j;
+%         end
+%     end
+% end
+
+%General Cost - 45% of combinations, 10/18 categories
+%Shannon Cost - <1% of combinations, 02/18 categories
+
+% load('frame2_prob_ext.mat')
+% x2 = milp_generalcost(J, K, X, cond_prob, prob_act);
+% c2 = ordinal_cost(x2, prob_act, X, J, K);
+% load('frame3_prob_ext.mat')
+% x3 = milp_generalcost(J, K, X, cond_prob, prob_act);
+% c3 = ordinal_cost(x3, prob_act, X, J, K);
+% load('frame4_prob_ext.mat')
+% x4 = milp_generalcost(J, K, X, cond_prob, prob_act);
+% c4 = ordinal_cost(x4, prob_act, X, J, K);
