@@ -1,6 +1,6 @@
 # YouTube_project
 This repository contains data as well as code for analyzing rationally inattentive commenting behavior in YouTube. 
-The formal theory and model is contained in the paper found at this link: https://arxiv.org/abs/1910.11703
+The formal theory and model is contained in the paper found at this link: https://arxiv.org/abs/1910.11703 .
 The repository contains the following:
 1. Raw YouTube data consisting of viewcount, comment count, video ratings (likes and dislikes), thumbnail, description of each individual video.
 2. Code for pre-processing raw data to generate probability mass functions of state, action, (state,action) and conditional probability mass functions of action given state. (State -> Viewcount, Action -> Comment count, video rating)
