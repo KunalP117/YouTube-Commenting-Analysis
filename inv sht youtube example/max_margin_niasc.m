@@ -91,4 +91,4 @@ post_prob_20(isnan(post_prob_20)) = 0;
 cond_prob_20(isnan(cond_prob_20)) = 0;
 act_prob_20(isnan(act_prob_20)) = 0;
 
-save('data_read_for_NIASC.mat');
+save('data_ready_for_NIASC.mat');
