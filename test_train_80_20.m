@@ -1,7 +1,10 @@
 clear all;clc;
 load('full_data_4_frames.mat');
 k=size(viewcount); k=k(2);
+
+rng('shuffle');
 p=randperm(k);
+
 
 train_frac=0.8; test_frac=0.2;
 thresh_ind=round(train_frac*k);

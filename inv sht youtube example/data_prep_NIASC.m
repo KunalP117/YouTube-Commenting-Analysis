@@ -1,11 +1,29 @@
 clear; clc; close all;
 
-%%% Code the generates this file is 'test_train_80_20.m'
+%%% Code that generates this file is 'test_train_80_20.m'
 load('../80_percent_data.mat');
 
 unique_categories = unique(category);
 unique_states = unique(viewcount_disc);
 unique_actions = unique(actions);
+
+categ_count = zeros(1,length(unique_categories));
+for i = 1:length(unique_categories)
+    categ_count(i) = sum(category == unique_categories(i));
+end
+
+load('../20_percent_data.mat');
+for i = 1:length(unique_categories)
+    categ_count(i) = min(categ_count(i),sum(category == unique_categories(i)));
+end
+
+load('../80_percent_data.mat');
+
+unique_categories
+vidcount_thresh = 240;
+valid_indices = find(categ_count>vidcount_thresh);
+unique_categories = unique_categories(valid_indices);
+unique_categories
 
 cond_prob_80 =zeros(length(unique_categories),length(unique_states)*length(unique_actions));
 prior_80 = zeros(length(unique_categories),length(unique_states));
@@ -47,12 +65,15 @@ act_prob_80(isnan(act_prob_80)) = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%% Code the generates this file is 'test_train_80_20.m'
+%%% Code that generates this file is 'test_train_80_20.m'
 load('../20_percent_data.mat');
 
-unique_categories = unique(category);
-unique_states = unique(viewcount_disc);
-unique_actions = unique(actions);
+% unique_categories = unique(category);
+% unique_states = unique(viewcount_disc);
+% unique_actions = unique(actions);
+
+
+
 
 cond_prob_20 =zeros(length(unique_categories),length(unique_states)*length(unique_actions));
 prior_20 = zeros(length(unique_categories),length(unique_states));
