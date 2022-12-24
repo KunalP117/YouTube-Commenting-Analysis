@@ -162,11 +162,17 @@ tvdistance_mat_maxmargin = 0.5*sum(abs(cond_prob_20_est - cond_prob_20),2)/num_s
 
 figure();
 subplot(1,2,1);
-ecdf(chi_squared_distance_maxent); hold on;
-ecdf(chi_squared_distance_maxmargin); hold off;
-title('Chi-Squared Distance');
+[x,y] = ecdf(chi_squared_distance_maxent); 
+plot(y,x); hold on;
+[x,y] = ecdf(chi_squared_distance_maxmargin); 
+plot(y,x); hold off;
+xlim([0,1]);
+ylim([0,1]);
 
 subplot(1,2,2);
-ecdf(tvdistance_mat_maxent); hold on;
-ecdf(tvdistance_mat_maxmargin);hold off;
-title('Total Variation Distance');
+[x,y] = ecdf(tvdistance_mat_maxent); 
+plot(y,x); hold on;
+[x,y] = ecdf(tvdistance_mat_maxmargin); 
+plot(y,x); hold off;
+xlim([0,1]);
+ylim([0,1]);
