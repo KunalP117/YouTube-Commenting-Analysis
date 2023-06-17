@@ -1,6 +1,6 @@
 # YouTube_project
 This repository contains data as well as code for analyzing rationally inattentive commenting behavior in YouTube. 
-The formal theory and model is contained in the paper found at this link: https://arxiv.org/abs/1910.11703 .
+The formal theory and model is contained in the paper found at this link: https://www.jmlr.org/papers/volume21/19-872/19-872.pdf.
 The raw YouTube data can be found at the public Google Drive folder: https://drive.google.com/drive/folders/1ByvDYQzZR6hHfWle5EXhBkoa4YpomNvF?usp=sharing. The data files need to be unwrapped through the pickle module in python using the youtube style file included in this repository. 
 
 The repository contains the following:
