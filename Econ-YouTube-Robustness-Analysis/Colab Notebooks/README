@@ -1,0 +1,5 @@
+This directory contains Jupyter notebooks for robustness analysis of metadata analysis of 140000 YouTube videos.
+
+You would need two additional resources for the analysis:
+- link to raw YouTube metadata: https://drive.google.com/drive/folders/1ByvDYQzZR6hHfWle5EXhBkoa4YpomNvF?usp=sharing
+- link to helper function to parse YouTUbe metadata: https://drive.google.com/drive/folders/1ks1AQXLWummpXqL6KZDsbkHKHRHcC4K_?usp=sharing
